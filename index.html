@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketplace</title>
+    <link rel="stylesheet" href="./style.css">
+    <script src="./Produk.js"></script>
+    <script src="./Cart.js"></script>
+</head>
+
+<body>
+    
+    <div class="row">
+        <div class="col col-8">
+            <div id="product-list"></div>
+        </div>
+        <div class="col col-4">
+            <div class="cart">
+                <h2>Keranjang <button type="button" onclick="addCoupon(50)">kupon 50%</button> <button type="button" onclick="addCoupon(20)">kupon 20%</button></h2>
+                <div id="cart-items"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var produk = new Produk();
+        var keranjang = new Cart('Yulianto');
+       
+        var productContainer = document.getElementById("product-list");
+
+        const addCoupon = (potongan)=>{
+            console.log('add diskon')
+            keranjang.addCoupon(potongan)
+        }
+
+        // Generate product HTML
+        produk.katalog.forEach(product => {
+            var productDiv = document.createElement("div");
+            productDiv.classList.add("product");
+
+            var productImage = document.createElement("img");
+            productImage.src = `https://picsum.photos/200/200?random=${produk.name}`;
+            productImage.alt = `Product ${product.id}`;
+
+            var productName = document.createElement("p");
+            productName.textContent = product.name;
+
+            var productPrice = document.createElement("p");
+            productPrice.textContent = `$${product.price}`;
+            
+            // Add a click event listener
+            var buttonAdd = document.createElement("button");
+            buttonAdd.textContent = `add`;
+            buttonAdd.addEventListener('click', function () {
+                keranjang.addToCart(`${product.id}`);
+            });
+
+            
+            // getDetailclick event listener
+            var buttonDetail = document.createElement("button");
+            buttonDetail.textContent = `detail`;
+            buttonDetail.addEventListener('click', function () {
+                getDetailById(`${product.id}`);
+            });
+
+            productDiv.appendChild(productImage);
+            productDiv.appendChild(productName);
+            productDiv.appendChild(productPrice);
+            productDiv.appendChild(buttonAdd);
+            productDiv.appendChild(buttonDetail);
+
+            productContainer.appendChild(productDiv);
+        });
+
+
+        const getDetailById = (id) => {
+                const xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4) {
+                        if (xhr.status === 200) {
+                            const jsonData = JSON.parse(xhr.responseText);
+                            console.log(jsonData)
+                            const item = jsonData.find(item => item.produt_id == id);
+
+                            if (item) {
+                                alert(JSON.stringify(item));
+                            } else {
+                                console.log(item)
+                                alert(`Item with ID ${id} not found.`);
+                            }
+                        } else {
+                            console.error('Error fetching data:', xhr.statusText);
+                        }
+                    }
+                };
+
+                // Mengganti URL dengan lokasi file JSON Anda
+                xhr.open('GET', './detail.json', true);
+                xhr.send();
+            }
+
+    </script>
+</body>
+
+</html>
